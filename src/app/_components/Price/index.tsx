@@ -8,7 +8,12 @@ import { RemoveFromCartButton } from '../RemoveFromCartButton'
 
 import classes from './index.module.scss'
 
-export const priceFromJSON = (priceJSON: string, quantity: number = 1, raw?: boolean): string => {
+export const priceFromJSON = (
+  priceJSON: string,
+  quantity: number = 1,
+  targetCurrency: string = 'EUR',
+  raw?: boolean,
+): string => {
   let price = ''
 
   if (priceJSON) {
@@ -19,9 +24,36 @@ export const priceFromJSON = (priceJSON: string, quantity: number = 1, raw?: boo
 
       if (raw) return priceValue.toString()
 
-      price = (priceValue / 100).toLocaleString('en-US', {
+      let currency = 'EUR' // Devise par défaut
+      if (parsed.currency) {
+        currency = parsed.currency.toUpperCase()
+      }
+
+      // Conversion en devise cible
+      let convertedPriceValue = priceValue
+      if (currency !== targetCurrency) {
+        // Conversion vers EUR
+        if (currency === 'USD') {
+          convertedPriceValue /= 1.18 // Conversion approximative USD vers EUR
+        } else if (currency === 'CAD') {
+          convertedPriceValue /= 0.73 // Conversion approximative CAD vers EUR
+        } else if (currency === 'XAF') {
+          convertedPriceValue /= 655.96 // Conversion approximative XAF vers EUR
+        }
+
+        // Conversion de EUR vers la devise cible
+        if (targetCurrency === 'USD') {
+          convertedPriceValue *= 1.18 // Conversion approximative EUR vers USD
+        } else if (targetCurrency === 'CAD') {
+          convertedPriceValue *= 0.73 // Conversion approximative EUR vers CAD
+        } else if (targetCurrency === 'XAF') {
+          convertedPriceValue *= 655.96 // Conversion approximative EUR vers XAF
+        }
+      }
+
+      price = (convertedPriceValue / 100).toLocaleString('fr-FR', {
         style: 'currency',
-        currency: 'USD', // TODO: use `parsed.currency`
+        currency: targetCurrency,
       })
 
       if (priceType === 'recurring') {
@@ -50,14 +82,14 @@ export const Price: React.FC<{
     actualPrice: string
     withQuantity: string
   }>(() => ({
-    actualPrice: priceFromJSON(priceJSON),
-    withQuantity: priceFromJSON(priceJSON, quantity),
+    actualPrice: priceFromJSON(priceJSON, 1, 'XAF'),
+    withQuantity: priceFromJSON(priceJSON, quantity, 'XAF'),
   }))
 
   useEffect(() => {
     setPrice({
-      actualPrice: priceFromJSON(priceJSON),
-      withQuantity: priceFromJSON(priceJSON, quantity),
+      actualPrice: priceFromJSON(priceJSON, 1, 'XAF'),
+      withQuantity: priceFromJSON(priceJSON, quantity, 'XAF'),
     })
   }, [priceJSON, quantity])
 
@@ -71,10 +103,10 @@ export const Price: React.FC<{
           )}
         </div>
       )}
-      {button && button === 'addToCart' && (
+      {/* {button && button === 'addToCart' && (
         <AddToCartButton product={product} appearance="default" />
       )}
-      {button && button === 'removeFromCart' && <RemoveFromCartButton product={product} />}
+      {button && button === 'removeFromCart' && <RemoveFromCartButton product={product} />} */}
     </div>
   )
 }

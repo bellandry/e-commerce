@@ -1,7 +1,7 @@
-import React from 'react'
 import { Metadata } from 'next'
+import Image from 'next/image'
+import Link from 'next/link'
 
-import { Gutter } from '../../_components/Gutter'
 import { RenderParams } from '../../_components/RenderParams'
 import { getMeUser } from '../../_utilities/getMeUser'
 import { mergeOpenGraph } from '../../_utilities/mergeOpenGraph'
@@ -17,19 +17,41 @@ export default async function CreateAccount() {
   })
 
   return (
-    <Gutter className={classes.createAccount}>
-      <h1>Create Account</h1>
-      <RenderParams />
-      <CreateAccountForm />
-    </Gutter>
+    <section className={classes.createAccount}>
+      <div className={classes.heroImg}>
+        <Link href="/">
+          <Image
+            src="/logo-black.svg"
+            width={170}
+            height={50}
+            alt="Laclass Tech Store Logo"
+            className={classes.logo}
+          />
+        </Link>
+      </div>
+      <div className={classes.formWrapper}>
+        <div className={classes.formContainer}>
+          <RenderParams className={classes.params} />
+
+          <div className={classes.formTitle}>
+            <h3>Créer un compte</h3>
+            <Image src="/assets/icons/hand.png" alt="Hand Icon" width={34} height={34} />
+          </div>
+
+          <p>Entrez vos informations pour créer le compte</p>
+
+          <CreateAccountForm />
+        </div>
+      </div>
+    </section>
   )
 }
 
 export const metadata: Metadata = {
-  title: 'Account',
-  description: 'Create an account or log in to your existing account.',
+  title: 'Créer un compte',
+  description: 'Créez un compte ou connectez vous pour commencer',
   openGraph: mergeOpenGraph({
-    title: 'Account',
+    title: 'Créer un compte',
     url: '/account',
   }),
 }

@@ -5,13 +5,10 @@ import Link from 'next/link'
 
 import { Page, Settings } from '../../../../payload/payload-types'
 import { Button } from '../../../_components/Button'
-import { HR } from '../../../_components/HR'
 import { LoadingShimmer } from '../../../_components/LoadingShimmer'
-import { Media } from '../../../_components/Media'
-import { Price } from '../../../_components/Price'
-import { RemoveFromCartButton } from '../../../_components/RemoveFromCartButton'
 import { useAuth } from '../../../_providers/Auth'
 import { useCart } from '../../../_providers/Cart'
+import CartItem from '../CartItem'
 
 import classes from './index.module.scss'
 
@@ -37,117 +34,95 @@ export const CartPage: React.FC<{
         <Fragment>
           {cartIsEmpty ? (
             <div className={classes.empty}>
-              Your cart is empty.
+              Votre panier est vide
               {typeof productsPage === 'object' && productsPage?.slug && (
                 <Fragment>
                   {' '}
-                  <Link href={`/${productsPage.slug}`}>Click here</Link>
-                  {` to shop.`}
+                  <Link href={`/${productsPage.slug}`}>Cliquez ici</Link>
+                  {` pour parcourir nos produits`}
                 </Fragment>
               )}
               {!user && (
                 <Fragment>
                   {' '}
-                  <Link href={`/login?redirect=%2Fcart`}>Log in</Link>
-                  {` to view a saved cart.`}
+                  <Link href={`/login?redirect=%2Fcart`}>Connectez vous</Link>
+                  {` pour voir votre panier personnel.`}
                 </Fragment>
               )}
             </div>
           ) : (
-            <div className={classes.items}>
-              <div className={classes.itemsTotal}>
-                {`There ${cart?.items?.length === 1 ? 'is' : 'are'} ${cart?.items?.length} item${
-                  cart?.items?.length === 1 ? '' : 's'
-                } in your cart.`}
-                {!user && (
-                  <Fragment>
-                    {' '}
-                    <Link href={`/login?redirect=%2Fcart`}>Log in</Link>
-                    {` to save your progress.`}
-                  </Fragment>
-                )}
-              </div>
-              {cart?.items?.map((item, index) => {
-                if (typeof item.product === 'object') {
-                  const {
-                    quantity,
-                    product,
-                    product: { id, title, meta, stripeProductID },
-                  } = item
-
-                  const isLast = index === (cart?.items?.length || 0) - 1
-
-                  const metaImage = meta?.image
-
-                  return (
-                    <Fragment key={index}>
-                      <div className={classes.row}>
-                        <Link href={`/products/${product.slug}`} className={classes.mediaWrapper}>
-                          {!metaImage && <span className={classes.placeholder}>No image</span>}
-                          {metaImage && typeof metaImage !== 'string' && (
-                            <Media
-                              className={classes.media}
-                              imgClassName={classes.image}
-                              resource={metaImage}
-                              fill
-                            />
-                          )}
-                        </Link>
-                        <div className={classes.rowContent}>
-                          {!stripeProductID && (
-                            <p className={classes.warning}>
-                              {
-                                'This product is not yet connected to Stripe. To link this product, '
-                              }
-                              <Link
-                                href={`${process.env.NEXT_PUBLIC_SERVER_URL}/admin/collections/products/${id}`}
-                              >
-                                edit this product in the admin panel
-                              </Link>
-                              {'.'}
-                            </p>
-                          )}
-                          <h5 className={classes.title}>
-                            <Link href={`/products/${product.slug}`} className={classes.titleLink}>
-                              {title}
-                            </Link>
-                          </h5>
-                          <div className={classes.actions}>
-                            <label>
-                              Quantity &nbsp;
-                              <input
-                                type="number"
-                                className={classes.quantity}
-                                // fallback to empty string to avoid uncontrolled input error
-                                // this allows the user to user their backspace key to clear the input
-                                value={typeof quantity === 'number' ? quantity : ''}
-                                onChange={e => {
-                                  addItemToCart({
-                                    product,
-                                    quantity: Number(e.target.value),
-                                  })
-                                }}
-                              />
-                            </label>
-                            <RemoveFromCartButton product={product} />
-                          </div>
-                          <Price product={product} button={false} quantity={quantity} />
-                        </div>
-                      </div>
-                      {!isLast && <HR />}
+            <div className={classes.cartWrapper}>
+              <div>
+                <div className={classes.itemsTotal}>
+                  {`Vous avez ${cart?.items?.length} article${
+                    cart?.items?.length === 1 ? '' : 's'
+                  } dans votre panier.`}
+                  {!user && (
+                    <Fragment>
+                      {' '}
+                      <Link href={`/login?redirect=%2Fcart`}>Connectez vous</Link>
+                      {` pour enregistrer vos achats`}
                     </Fragment>
-                  )
-                }
-                return null
-              })}
-              <HR />
-              <h5 className={classes.cartTotal}>{`Total: ${cartTotal.formatted}`}</h5>
-              <Button
-                className={classes.checkoutButton}
-                href={user ? '/checkout' : '/login?redirect=%2Fcheckout'}
-                label={user ? 'Checkout' : 'Login to checkout'}
-                appearance="primary"
-              />
+                  )}
+                </div>
+                <div className={classes.header}>
+                  <p>Article</p>
+                  <div className={classes.headerItemDetails}>
+                    <p></p>
+                    <p></p>
+                    <p>Quantité</p>
+                  </div>
+                  <p className={classes.headersubtotal}>Total</p>
+                </div>
+
+                <ul className={classes.itemsList}>
+                  {cart?.items?.map((item, index) => {
+                    if (typeof item.product === 'object') {
+                      const {
+                        quantity,
+                        product,
+                        product: { id, title, meta, stripeProductID },
+                      } = item
+
+                      const isLast = index === (cart?.items?.length || 0) - 1
+
+                      const metaImage = meta?.image
+
+                      return (
+                        <CartItem
+                          product={product}
+                          title={title}
+                          metaImage={metaImage}
+                          index={index}
+                          quantity={quantity}
+                          addItemToCart={addItemToCart}
+                        />
+                      )
+                    }
+                    return null
+                  })}
+                </ul>
+              </div>
+
+              <div className={classes.summary}>
+                <div className={classes.row}>
+                  <h6 className={classes.cartTotal}>Résumé</h6>
+                </div>
+                <div className={classes.row}>
+                  <p className={classes.cartTotal}>Frais de livraison</p>
+                  <p className={classes.cardTotal}>0 FCFA</p>
+                </div>
+                <div className={classes.row}>
+                  <p className={classes.cartTotal}>Total à payer</p>
+                  <p className={classes.cardTotal}>{cartTotal.formatted}</p>
+                </div>
+                <Button
+                  className={classes.checkoutButton}
+                  href={user ? '/checkout' : '/login?redirect=%2Fcheckout'}
+                  label={user ? 'Payer' : 'Connectez vous pour payer'}
+                  appearance="primary"
+                />
+              </div>
             </div>
           )}
         </Fragment>

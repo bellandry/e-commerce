@@ -193,7 +193,7 @@ export const CartProvider = props => {
           itemsInCart.find(({ product }) =>
             typeof product === 'string'
               ? product === incomingProduct.id
-              : product?.id === incomingProduct.id,
+              : (typeof product === 'object' ? product?.id : '') === incomingProduct.id,
           ), // eslint-disable-line function-paren-newline
         )
       }
@@ -239,10 +239,7 @@ export const CartProvider = props => {
       }, 0) || 0
 
     setTotal({
-      formatted: (newTotal / 100).toLocaleString('en-US', {
-        style: 'currency',
-        currency: 'USD',
-      }),
+      formatted: convertCurrency(newTotal / 100, 'EUR', 'XAF'),
       raw: newTotal,
     })
   }, [cart, hasInitialized])
@@ -263,4 +260,39 @@ export const CartProvider = props => {
       {children && children}
     </Context.Provider>
   )
+}
+
+export const convertCurrency = (
+  amount: number,
+  fromCurrency: string,
+  toCurrency: string,
+): string => {
+  const exchangeRates: { [key: string]: number } = {
+    'EUR-USD': 1.18, // Conversion approximative EUR vers USD
+    'USD-EUR': 0.85, // Conversion approximative USD vers EUR
+    'EUR-CAD': 1.46, // Conversion approximative EUR vers CAD
+    'CAD-EUR': 0.68, // Conversion approximative CAD vers EUR
+    'EUR-XAF': 655.96, // Conversion approximative EUR vers XAF
+    'XAF-EUR': 0.0015, // Conversion approximative XAF vers EUR
+  }
+
+  // Vérification de la validité des devises
+  const exchangeRateKey = `${fromCurrency.toUpperCase()}-${toCurrency.toUpperCase()}`
+  if (!exchangeRates.hasOwnProperty(exchangeRateKey)) {
+    throw new Error(
+      `Conversion de devises non prise en charge : ${fromCurrency} vers ${toCurrency}`,
+    )
+  }
+
+  // Calcul de la conversion
+  const exchangeRate = exchangeRates[exchangeRateKey]
+  const convertedAmount = amount * exchangeRate
+
+  // Formatage du montant converti selon la devise de sortie
+  const formattedAmount = convertedAmount.toLocaleString('fr-FR', {
+    style: 'currency',
+    currency: toCurrency,
+  })
+
+  return formattedAmount
 }

@@ -4,7 +4,7 @@ import React, { useCallback } from 'react'
 import { PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js'
 import { useRouter } from 'next/navigation'
 
-import { Order } from '../../../../payload/payload-types'
+import { Order, Product } from '../../../../payload/payload-types'
 import { Button } from '../../../_components/Button'
 import { Message } from '../../../_components/Message'
 import { priceFromJSON } from '../../../_components/Price'
@@ -55,11 +55,11 @@ export const CheckoutForm: React.FC<{}> = () => {
                 total: cartTotal.raw,
                 stripePaymentIntentID: paymentIntent.id,
                 items: (cart?.items || [])?.map(({ product, quantity }) => ({
-                  product: typeof product === 'string' ? product : product.id,
+                  product: typeof product === 'string' ? product : (product as Product).id,
                   quantity,
                   price:
                     typeof product === 'object'
-                      ? priceFromJSON(product.priceJSON, 1, true)
+                      ? priceFromJSON(product.priceJSON, 1, 'EUR', true)
                       : undefined,
                 })),
               }),
@@ -87,8 +87,9 @@ export const CheckoutForm: React.FC<{}> = () => {
           }
         }
       } catch (err) {
-        const msg = err instanceof Error ? err.message : 'Something went wrong.'
-        setError(`Error while submitting payment: ${msg}`)
+        const msg =
+          err instanceof Error ? err.message : 'Une erreur innatendue s&apos;est produite.'
+        setError(`Une erreur est survenue pendant le paiement: ${msg}`)
         setIsLoading(false)
       }
     },
@@ -100,9 +101,9 @@ export const CheckoutForm: React.FC<{}> = () => {
       {error && <Message error={error} />}
       <PaymentElement />
       <div className={classes.actions}>
-        <Button label="Back to cart" href="/cart" appearance="secondary" />
+        <Button label="Retour au panier" href="/cart" appearance="secondary" />
         <Button
-          label={isLoading ? 'Loading...' : 'Checkout'}
+          label={isLoading ? 'Paiement en cours...' : 'Payer'}
           type="submit"
           appearance="primary"
           disabled={!stripe || isLoading}

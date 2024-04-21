@@ -2,7 +2,6 @@
 
 import React, { Fragment, useCallback, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import Link from 'next/link'
 
 import { Button } from '../../../_components/Button'
 import { Input } from '../../../_components/Input'
@@ -40,9 +39,7 @@ export const RecoverPasswordForm: React.FC = () => {
       setSuccess(true)
       setError('')
     } else {
-      setError(
-        'There was a problem while attempting to send you a password reset email. Please try again.',
-      )
+      setError("Une erreur inatendue est survenue durant l'opération, veuillez réessayer.")
     }
   }, [])
 
@@ -50,19 +47,16 @@ export const RecoverPasswordForm: React.FC = () => {
     <Fragment>
       {!success && (
         <React.Fragment>
-          <h1>Recover Password</h1>
+          <p>
+            Renseignez l'adresse mail correspondant à votre compte. Nous vous enverons un code de
+            réinitialisation
+          </p>
           <div className={classes.formWrapper}>
-            <p>
-              {`Please enter your email below. You will receive an email message with instructions on
-              how to reset your password. To manage your all users, `}
-              <Link href="/admin/collections/users">login to the admin dashboard</Link>
-              {'.'}
-            </p>
             <form onSubmit={handleSubmit(onSubmit)} className={classes.form}>
               <Message error={error} className={classes.message} />
               <Input
                 name="email"
-                label="Email Address"
+                label="Adresse Email"
                 required
                 register={register}
                 error={errors.email}
@@ -71,7 +65,7 @@ export const RecoverPasswordForm: React.FC = () => {
               <Button
                 type="submit"
                 appearance="primary"
-                label="Recover Password"
+                label="Retrouver mon mot de passe"
                 className={classes.submit}
               />
             </form>
@@ -80,8 +74,11 @@ export const RecoverPasswordForm: React.FC = () => {
       )}
       {success && (
         <React.Fragment>
-          <h1>Request submitted</h1>
-          <p>Check your email for a link that will allow you to securely reset your password.</p>
+          <h1>Requette transmise</h1>
+          <p>
+            Vérifiez vos mails, nous vous avons envoyé un lien qui vous permettra de retrouver votre
+            compte.
+          </p>
         </React.Fragment>
       )}
     </Fragment>

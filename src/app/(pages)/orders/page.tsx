@@ -1,4 +1,3 @@
-import React from 'react'
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
@@ -8,6 +7,7 @@ import { Button } from '../../_components/Button'
 import { Gutter } from '../../_components/Gutter'
 import { HR } from '../../_components/HR'
 import { RenderParams } from '../../_components/RenderParams'
+import { convertCurrency } from '../../_providers/Cart'
 import { formatDateTime } from '../../_utilities/formatDateTime'
 import { getMeUser } from '../../_utilities/getMeUser'
 import { mergeOpenGraph } from '../../_utilities/mergeOpenGraph'
@@ -17,7 +17,7 @@ import classes from './index.module.scss'
 export default async function Orders() {
   const { token } = await getMeUser({
     nullUserRedirect: `/login?error=${encodeURIComponent(
-      'You must be logged in to view your orders.',
+      'Vous devez être connecté pour voir vos achats.',
     )}&redirect=${encodeURIComponent('/orders')}`,
   })
 
@@ -48,9 +48,9 @@ export default async function Orders() {
 
   return (
     <Gutter className={classes.orders}>
-      <h1>Orders</h1>
+      <h1>Mes commandes</h1>
       {(!orders || !Array.isArray(orders) || orders?.length === 0) && (
-        <p className={classes.noOrders}>You have no orders.</p>
+        <p className={classes.noOrders}>Vous n'avez aucune commande pour le moment.</p>
       )}
       <RenderParams />
       {orders && orders.length > 0 && (
@@ -59,21 +59,22 @@ export default async function Orders() {
             <li key={order.id} className={classes.listItem}>
               <Link className={classes.item} href={`/orders/${order.id}`}>
                 <div className={classes.itemContent}>
-                  <h4 className={classes.itemTitle}>{`Order ${order.id}`}</h4>
+                  <h4 className={classes.itemTitle}>{`Commande ${order.id}`}</h4>
                   <div className={classes.itemMeta}>
-                    <p>{`Ordered On: ${formatDateTime(order.createdAt)}`}</p>
+                    <p>{`Achetés le: ${formatDateTime(order.createdAt)}`}</p>
                     <p>
                       {'Total: '}
-                      {new Intl.NumberFormat('en-US', {
+                      {convertCurrency(order.total / 100, 'EUR', 'XAF')}
+                      {/* {new Intl.NumberFormat('fr-FR', {
                         style: 'currency',
-                        currency: 'usd',
-                      }).format(order.total / 100)}
+                        currency: 'eur',
+                      }).format(order.total / 100)} */}
                     </p>
                   </div>
                 </div>
                 <Button
                   appearance="secondary"
-                  label="View Order"
+                  label="Voir la commande"
                   className={classes.button}
                   el="button"
                 />
@@ -84,16 +85,16 @@ export default async function Orders() {
         </ul>
       )}
       <HR />
-      <Button href="/account" appearance="primary" label="Go to account" />
+      <Button href="/account" appearance="primary" label="Mon compte" />
     </Gutter>
   )
 }
 
 export const metadata: Metadata = {
-  title: 'Orders',
-  description: 'Your orders.',
+  title: 'Mes commandes',
+  description: 'Retrouvez vos commandes ici.',
   openGraph: mergeOpenGraph({
-    title: 'Orders',
+    title: 'Commandes',
     url: '/orders',
   }),
 }

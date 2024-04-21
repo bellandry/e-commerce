@@ -1,0 +1,35 @@
+@use '../../../_css/queries.scss' as *;
+
+.mobileNav {
+  display:  none;
+  cursor: pointer;
+
+  @include small-break {
+    display: block;
+  }
+}
+
+.navElt {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 30px;
+  position: absolute;
+  right: 0;
+  width: 50%;
+  border-radius: 5px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-5%, 0);
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px; // Add rounded corners
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  z-index: 999;
+}
+
+.navOpen {
+  opacity: 1;
+  visibility: visible;
+}

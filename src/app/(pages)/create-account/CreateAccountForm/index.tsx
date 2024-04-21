@@ -13,6 +13,7 @@ import { useAuth } from '../../../_providers/Auth'
 import classes from './index.module.scss'
 
 type FormData = {
+  name: string
   email: string
   password: string
   passwordConfirm: string
@@ -73,15 +74,18 @@ const CreateAccountForm: React.FC = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className={classes.form}>
-      <p>
-        {`This is where new customers can signup and create a new account. To manage all users, `}
-        <Link href="/admin/collections/users">login to the admin dashboard</Link>
-        {'.'}
-      </p>
       <Message error={error} className={classes.message} />
       <Input
+        name="name"
+        label="Votre Nom"
+        required
+        register={register}
+        error={errors.name}
+        type="text"
+      />
+      <Input
         name="email"
-        label="Email Address"
+        label="Adresse Email"
         required
         register={register}
         error={errors.email}
@@ -90,7 +94,7 @@ const CreateAccountForm: React.FC = () => {
       <Input
         name="password"
         type="password"
-        label="Password"
+        label="Mot de passe"
         required
         register={register}
         error={errors.password}
@@ -98,22 +102,24 @@ const CreateAccountForm: React.FC = () => {
       <Input
         name="passwordConfirm"
         type="password"
-        label="Confirm Password"
+        label="Confirmez le mot de passe"
         required
         register={register}
-        validate={value => value === password.current || 'The passwords do not match'}
+        validate={value =>
+          value === password.current || 'Les mots de passes ne sont pas similaires'
+        }
         error={errors.passwordConfirm}
       />
       <Button
         type="submit"
-        label={loading ? 'Processing' : 'Create Account'}
+        label={loading ? 'Création du compte' : 'Créer le compte'}
         disabled={loading}
         appearance="primary"
         className={classes.submit}
       />
       <div>
-        {'Already have an account? '}
-        <Link href={`/login${allParams}`}>Login</Link>
+        {'Vous avez déja un compte ? '}
+        <Link href={`/login${allParams}`}>Se connecter</Link>
       </div>
     </form>
   )
