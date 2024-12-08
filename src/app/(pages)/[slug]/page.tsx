@@ -1,7 +1,7 @@
-import React from 'react'
 import { Metadata } from 'next'
 import { draftMode } from 'next/headers'
 import { notFound } from 'next/navigation'
+import React from 'react'
 
 import { Category, Page, Product } from '../../../payload/payload-types'
 import { staticHome } from '../../../payload/seed/home-static'
@@ -69,7 +69,7 @@ export default async function Page({ params: { slug = 'home' } }) {
           <Hero {...hero} />
           <Gutter className={classes.home}>
             <Categories categories={categories} />
-            {/* <Products products={products} /> */}
+            <Products products={products} />
             <Promotion />
           </Gutter>
         </section>
